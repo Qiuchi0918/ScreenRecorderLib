@@ -14,9 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Nuget\ScreenRecorderLib.nuspec = Nuget\ScreenRecorderLib.nuspec
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{FDA56BBE-5019-47C5-AF1E-386D123C02E3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{7199CBA5-ACDD-4751-B819-F74C5211EDE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleScreenRecorder", "ConsoleScreenRecorder\ConsoleScreenRecorder.csproj", "{FDA56BBE-5019-47C5-AF1E-386D123C02E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,18 +52,6 @@ Global
 		{B45B1A90-A9ED-4DAB-A857-E8448D7B6F42}.Release|x64.Build.0 = Release|x64
 		{B45B1A90-A9ED-4DAB-A857-E8448D7B6F42}.Release|x86.ActiveCfg = Release|x86
 		{B45B1A90-A9ED-4DAB-A857-E8448D7B6F42}.Release|x86.Build.0 = Release|x86
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x64.ActiveCfg = Debug|x64
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x64.Build.0 = Debug|x64
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x86.ActiveCfg = Debug|x86
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x86.Build.0 = Debug|x86
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x64.ActiveCfg = Release|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x64.Build.0 = Release|Any CPU
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x86.ActiveCfg = Release|x86
-		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x86.Build.0 = Release|x86
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Debug|x64.ActiveCfg = Debug|x64
@@ -76,6 +64,18 @@ Global
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Release|x64.Build.0 = Release|Any CPU
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Release|x86.ActiveCfg = Release|Any CPU
 		{7199CBA5-ACDD-4751-B819-F74C5211EDE1}.Release|x86.Build.0 = Release|Any CPU
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x64.ActiveCfg = Debug|x64
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x64.Build.0 = Debug|x64
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x86.ActiveCfg = Debug|x86
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Debug|x86.Build.0 = Debug|x86
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x64.ActiveCfg = Release|x64
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x64.Build.0 = Release|x64
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x86.ActiveCfg = Release|x86
+		{FDA56BBE-5019-47C5-AF1E-386D123C02E3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

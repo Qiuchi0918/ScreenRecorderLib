@@ -1,5 +1,7 @@
 ﻿using ScreenRecorderLib;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,6 +17,7 @@ namespace ConsoleScreenRecorder
         private static string _outputFolder, _outputFilename;
         static void Main(string[] args)
         {
+            Console.Title = "Console Screen Recorder";
             bool restart = false;
             do
             {
@@ -23,13 +26,19 @@ namespace ConsoleScreenRecorder
                 var inputDevices = Recorder.GetSystemAudioDevices(AudioDeviceSource.InputDevices);
                 var opts = new RecorderOptions
                 {
+                    VideoOptions = new VideoOptions
+                    {
+                        Framerate = 60,
+                        BitrateMode = BitrateControlMode.Quality,
+                        Quality = 100,
+                    },
                     AudioOptions = new AudioOptions
                     {
                         AudioInputDevice = inputDevices.First().Key,
                         IsAudioEnabled = true,
                         IsInputDeviceEnabled = true,
                         IsOutputDeviceEnabled = true,
-                    },
+                    }
                 };
 
                 Recorder rec = Recorder.CreateRecorder(opts);
@@ -38,14 +47,15 @@ namespace ConsoleScreenRecorder
                 rec.OnStatusChanged += Rec_OnStatusChanged;
 
                 AskOutputDirectory();
-                rec.Record(File.Create(_outputFolder + _outputFilename));
-                Console.WriteLine("Press [P] to pause\n" +
-                                  "      [R] to resume\n" +
-                                  "      [F] to finish");
-                Console.Write("Output filename: \"");
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine( _outputFolder + _outputFilename + '\"');
-                Console.ResetColor();
+                rec.Record(_outputFolder + _outputFilename);
+
+                ModifiedConsoleWrite(true,
+                    new string[] { "Press ","[P]"," to pause\n",
+                                   "      ","[R]"," to resume\n",
+                                   "      ","[F]"," to finish"},
+                    new ConsoleColor[] { ConsoleColor.Cyan, ConsoleColor.Cyan, ConsoleColor.Cyan },
+                    new int[] { 1, 4, 7 });
+
                 CancellationTokenSource cts = new CancellationTokenSource();
                 var token = cts.Token;
                 Task.Run(async () =>
@@ -58,9 +68,7 @@ namespace ConsoleScreenRecorder
                         {
                             Dispatcher.CurrentDispatcher.Invoke(() =>
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                DisplayLength();
-                                Console.ResetColor();
+                                DisplayLength(ConsoleColor.Red);
                             });
                         }
                         await Task.Delay(10);
@@ -74,17 +82,13 @@ namespace ConsoleScreenRecorder
                         case ConsoleKey.F:
                             cts.Cancel();
                             rec.Stop();
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            DisplayLength();
-                            Console.ResetColor();
+                            DisplayLength(ConsoleColor.Green);
                             goto Stop;
                         case ConsoleKey.P:
                             if (rec.Status == RecorderStatus.Recording)
                             {
                                 rec.Pause();
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                DisplayLength();
-                                Console.ResetColor();
+                                DisplayLength(ConsoleColor.Green);
                             }
                             break;
                         case ConsoleKey.R:
@@ -95,30 +99,27 @@ namespace ConsoleScreenRecorder
                     }
                 }
             Stop:;
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\nRecording completed");
-                Console.ResetColor();
-                Console.WriteLine("Press [O] to open output directory\n" +
-                                  "      [Enter] to start another recording\n" +
-                                  "      [ESC] to Exit");
+
                 while (true)
                 {
                     ConsoleKey consoleKey = Console.ReadKey(true).Key;
                     if (consoleKey == ConsoleKey.O)
                     {
-                        System.Diagnostics.Process.Start("explorer", "/select,\"" + _outputFolder + _outputFilename + "\"");
+                        Process.Start("explorer", "/select,\"" + _outputFolder + _outputFilename + "\"");
                     }
-                    if (consoleKey== ConsoleKey.Enter)
+                    if (consoleKey == ConsoleKey.Enter)
                     {
                         restart = true;
                         break;
                     }
-                    if (consoleKey== ConsoleKey.Escape)
+                    if (consoleKey == ConsoleKey.Escape)
                     {
                         restart = false;
                         break;
                     }
                 }
+                rec?.Dispose();
+                rec = null;
             } while (restart);
         }
 
@@ -142,6 +143,17 @@ namespace ConsoleScreenRecorder
         private static void Rec_OnRecordingComplete(object sender, RecordingCompleteEventArgs e)
         {
             _stopWatch?.Stop();
+
+            Console.Clear();
+            ModifiedConsoleWrite(true,
+                new string[] {
+                    "\nFile path: ",e.FilePath+'\n',
+                    "Length: ",_stopWatch.Elapsed.ToString()+'\n',
+                    "Press ","[O]"," to open output directory\n",
+                    "      ","[Enter]"," to start another recording\n",
+                    "      ","[ESC]"," to Exit\n"},
+                new ConsoleColor[] { ConsoleColor.Cyan, ConsoleColor.Cyan, ConsoleColor.Cyan, ConsoleColor.Cyan },
+                new int[] { 1, 5, 8,11 });
         }
 
         private static void Rec_OnRecordingFailed(object sender, RecordingFailedEventArgs e)
@@ -154,32 +166,105 @@ namespace ConsoleScreenRecorder
 
         private static void AskOutputDirectory()
         {
-            Console.Write    ("Press [Y] to use default directory ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\"D:\\Library\\Captures\"");
-            Console.ResetColor();
-            Console.WriteLine("      [N] to store in a different directroy");
-            _outputFilename = string.Format("{0}_{1}_{2}_{3}_{4}_{5}.mp4", DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+            ModifiedConsoleWrite(true,
+                new string[] {
+                    "Press ","[D]"," to use default directory ", "\"D:\\Library\\Captures\"\n",
+                    "      ","[O]"," to store in a different directroy\n",
+                    "      ","[S]"," to select from used directory"},
+                new ConsoleColor[] { ConsoleColor.Cyan, ConsoleColor.Cyan, ConsoleColor.Cyan, ConsoleColor.Cyan },
+                new int[] { 1, 3, 5, 8 });
+            _outputFilename = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".mp4";
         askAgain:
             ConsoleKey option = Console.ReadKey(true).Key;
+
+
+            string pathFilePath = Directory.GetCurrentDirectory() + "\\SavedPath.txt";
+            if (!File.Exists(pathFilePath))
+            {
+                File.Create(pathFilePath).Close();
+            }
+            List<string> pathList = new List<string>();
+            StreamReader sr = new StreamReader(pathFilePath);
+            while (!sr.EndOfStream)
+            {
+                string curPath = sr.ReadLine();
+                pathList.Add(curPath);
+            }
+            sr.Close();
+
             switch (option)
             {
-                case ConsoleKey.Y:
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    _outputFolder = "D:\\Library\\Captures\\";
-                    Console.ResetColor();
-                    break;
-                case ConsoleKey.N:
+                case ConsoleKey.D:
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        _outputFolder = "D:\\Library\\Captures\\";
+                        Console.ResetColor();
+                        break;
+                    }
+                case ConsoleKey.O:
                     {
                         Console.Write("Enter Output Directory: ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         _outputFolder = Console.ReadLine() + '\\';
                         Console.ResetColor();
                         if (Path.IsPathRooted(_outputFolder))
+                        {
+                            if (pathList.Contains(_outputFolder))
+                                break;
+                            ModifiedConsoleWrite(true,
+                                new string[] {"Press ","[Y]"," to remember the path\n",
+                                              "      ","[N]"," otherwise"},
+                                new ConsoleColor[] { ConsoleColor.Cyan, ConsoleColor.Cyan },
+                            new int[] { 1, 4 });
+                            ConsoleKey key = Console.ReadKey().Key;
+                            if (key==ConsoleKey.Y)
+                            {
+                                StreamWriter sw = new StreamWriter(pathFilePath, true);
+                                sw.WriteLine(_outputFolder);
+                                sw.Close();
+                            }
                             break;
+                        }
                         else
                         {
-                            Console.WriteLine("Invalid directory");
+                            Console.WriteLine("\rInvalid directory");
+                            goto askAgain;
+                        }
+                    }
+                case ConsoleKey.S:
+                    {
+                        if (pathList.Count==0)
+                        {
+                            Console.WriteLine("No avaliable path");
+                            goto askAgain;
+                        }
+                        for (int i = 0; i < pathList.Count; i++)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write('[' + i.ToString() + ']');
+                            Console.ResetColor();
+                            Console.WriteLine(pathList[i]);
+                        }
+                        Console.WriteLine("Type in the index of the disired directory");
+                        string input = Console.ReadLine();
+                        int selectedIndex;
+                        try
+                        {
+                            selectedIndex = Convert.ToInt32(input);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Invalid index");
+                            goto askAgain;
+                        }
+                        if (selectedIndex < pathList.Count && Path.IsPathRooted(pathList[selectedIndex]))
+                        {
+                            _outputFolder = pathList[selectedIndex] + '\\';
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invaild index or path");
                             goto askAgain;
                         }
                     }
@@ -191,9 +276,37 @@ namespace ConsoleScreenRecorder
             Console.Clear();
         }
 
-        private static void DisplayLength()
+        private static void DisplayLength(ConsoleColor timeColor)
         {
-            Console.Write(String.Format("\rLength: {0}s:{1}ms        ", _stopWatch.Elapsed.Seconds, _stopWatch.Elapsed.Milliseconds));
+            ModifiedConsoleWrite(false,
+                new string[] { "\rLength: ", String.Format("{0}s:{1}ms        ", _stopWatch.Elapsed.Seconds, _stopWatch.Elapsed.Milliseconds) },
+                new ConsoleColor[] { timeColor },
+                new int[] { 1 });
+        }
+
+        private static void ModifiedConsoleWrite(bool writeline,string [] subStrings,ConsoleColor[] colors,int[] targetSubStringIndex)
+        {
+            int curColor = 0;
+            for (int strIndex = 0; strIndex < subStrings.Length; strIndex++)
+            {
+                if (targetSubStringIndex.Contains(strIndex))
+                {
+                    Console.ForegroundColor = colors[curColor++];
+                    Console.Write(subStrings[strIndex]);
+                    Console.ResetColor();
+                    continue;
+                }
+                else
+                {
+                    Console.Write(subStrings[strIndex]);
+                    continue;
+                }
+            }
+            Console.ResetColor();
+            if (writeline)
+            {
+                Console.WriteLine();
+            }
         }
     }
 }
